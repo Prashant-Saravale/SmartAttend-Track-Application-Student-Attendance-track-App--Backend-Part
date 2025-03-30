@@ -1,14 +1,17 @@
-# Use official OpenJDK image
-FROM openjdk:17-jdk-slim
+# Use OpenJDK 17 base image
+FROM openjdk:17-jdk-slim  
 
-# Set working directory in the container
-WORKDIR /app
+# Install Maven
+RUN apt update && apt install -y maven  
 
-# Copy the built JAR file (Change "your-app.jar" to your actual JAR name)
-COPY target/*.jar app.jar
+# Set the working directory
+WORKDIR /app  
 
-# Expose the application's port (change if needed)
-EXPOSE 8080
+# Copy all project files into the container
+COPY . .  
 
-# Command to run the application
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Build the project using Maven
+RUN mvn clean package -DskipTests  
+
+# Run the generated JAR file
+CMD ["java", "-jar", "target/*.jar"]
