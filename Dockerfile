@@ -1,17 +1,24 @@
-# Use OpenJDK 17 base image
-FROM openjdk:17-jdk-slim  
+# Use official OpenJDK image
+FROM openjdk:17-jdk-slim
 
-# Install Maven
-RUN apt update && apt install -y maven  
+# Set working directory
+WORKDIR /app
 
-# Set the working directory
-WORKDIR /app  
+# Copy Maven wrapper files (if present)
+COPY .mvn .mvn
+COPY mvnw pom.xml ./
 
-# Copy all project files into the container
-COPY . .  
+# Give execution permission to Maven wrapper (if needed)
+RUN chmod +x mvnw
 
-# Build the project using Maven
-RUN mvn clean package -DskipTests  
+# Run Maven to build the project
+RUN ./mvnw clean package -DskipTests
 
-# Run the generated JAR file
-CMD ["java", "-jar", "target/*.jar"]
+# Copy the built JAR file to the container
+COPY target/*.jar app.jar
+
+# Expose the application port (change if needed)
+EXPOSE 8080
+
+# Run the application
+CMD ["java", "-jar", "app.jar"]
